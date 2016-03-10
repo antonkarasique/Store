@@ -1,7 +1,7 @@
-<%@ page import="java.util.List" %>
-<%@ page import="store.Product" %>
-<%@ page import="java.util.ArrayList" %>
+<%@ page import="store.db.Product" %>
 <%@ page import="java.io.PrintWriter" %>
+<%@ page import="java.util.*" %>
+<%@ page import="javax.management.relation.Role" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -36,30 +36,19 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="brand" href="#">Project name</a>
+            <a class="brand" href="/">Мой магазин</a>
             <div class="nav-collapse collapse">
                 <ul class="nav">
-                    <li class="active"><a href="#">Home</a></li>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#contact">Contact</a></li>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#">Action</a></li>
-                            <li><a href="#">Another action</a></li>
-                            <li><a href="#">Something else here</a></li>
-                            <li class="divider"></li>
-                            <li class="nav-header">Nav header</li>
-                            <li><a href="#">Separated link</a></li>
-                            <li><a href="#">One more separated link</a></li>
-                        </ul>
-                    </li>
+                    <li class="active"><a href="/">Главная</a></li>
+                    <li><a href="#about">Доставка</a></li>
+                    <li><a href="#contact">Контакты</a></li>
                 </ul>
+
                 <sec:authorize access="isAnonymous()">
                     <c:url value="/j_spring_security_check" var="loginUrl" />
                     <form class="navbar-form pull-right" action="${loginUrl}" method="post">
-                        <input class="span2" type="text" name="j_username" placeholder="Email">
-                        <input class="span2" type="password" name="j_password" placeholder="Password">
+                        <input class="span2" type="text" name="j_username" placeholder="Email or admin">
+                        <input class="span2" type="password" name="j_password" placeholder="Password or 1234">
                         <button type="submit" class="btn">Войти</button>
                         <a href="/reg">Регистрация</a>
                     </form>
@@ -67,12 +56,13 @@
                 <sec:authorize access="isAuthenticated()">
                     <form class="navbar-form pull-right">
                     <p class="text-info">Ваш логин: <sec:authentication property="principal.username" />
-                    <a class="btn btn-lg btn-danger" href="<c:url value="/logout" />" role="button">Выйти</a>
+                    <a class="btn btn-small btn-primary" href="<c:url value="/basket" />" role="button">кабинет${inbasket}</a>
+                    <a class="btn btn-mini btn-danger" href="<c:url value="/logout" />" role="button">Выйти</a>
                     <sec:authorize access="hasRole('ADMIN')">
-                        <a class="btn btn-inverse" href="<c:url value="/admin" />" role="button">Админка</a></form>
+                        <a class="btn btn-inverse" href="<c:url value="/orders" />" role="button">Админка</a></form>
                     </sec:authorize>
-                    </p>
-                    </form>
+
+
 
                 </sec:authorize>
 
@@ -88,30 +78,62 @@
 
     <!-- Main hero unit for a primary marketing message or call to action -->
     <div class="hero-unit">
-        <h1>Hello, world!</h1>
-        <p>This is a template for a simple marketing or informational website. It includes a large callout called the hero unit and three supporting pieces of content. Use it as a starting point to create something more unique.</p>
-        <p><a href="#" class="btn btn-primary btn-large">Learn more &raquo;</a></p>
+        <h1>Заведение "НАЗВАНИЕ"</h1>
+        <p>Описание блаблаблабла блабла блаблабла блаблаблабла блабла бла блаблабла РЕклама блаблаблабла блаблабла блаблабла
+            блаблабла блаблаблабла блаблаблаблаблаблаблабла блаблаблабла блаблаблаблабла блаблабла АКЦИЯ! блаблаблабла
+            блаблаблаблаблабла блаблаблабла блаблаблабла блаблаблаблаблабла блаблабла бла</p>
+        <p><a href="https://github.com/antonkarasique/Store/tree/master/src/main" class="btn btn-primary btn-large btn-success">Исходники &raquo;</a></p>
     </div>
 
     <!-- Example row of columns -->
 
 
     <div class="row">
-        <%--<% ArrayList<Product> products = (ArrayList<Product>)request.getAttribute("products");
-            PrintWriter pw = response.getWriter();
+        <li class="dropdown">
+            <a href="#" class="btn dropdown-toggle" data-toggle="dropdown">Категории <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+                <li><a href="/">Все</a></li>
+                <% ArrayList<Product> products = (ArrayList<Product>)request.getAttribute("products");
+                    ArrayList<String> cats = new ArrayList<>();
+                    for (Product p : products) {
+                        cats.add(p.getCat_id());
+                    }
+                    String tmp = " hop hey lalaey! ";
+                    try {
+                        Collections.sort(cats);
+                    } catch (NullPointerException e){
+                        e.printStackTrace();
+                        System.out.println("null photo uploaded");
+                    }
+                    for(Iterator<String> cat = cats.iterator(); cat.hasNext();){
+                        String currentString = cat.next();
+                        if (tmp != null && tmp.equals(currentString)) {
+                            cat.remove();
+                        } else {
+                            tmp = currentString;
+                        }
+                    }
 
-            for (int i = 0; i <  products.size()-1; i++) {
-                Product p = products.get(i);
-                pw.println("<div class=\"span4\">");
-                pw.println("<h3> "+p.getName()+"</h3>");
-                pw.println("<p><img height=\"140\" width=\"140\" src=./images/"+p.getId()+" class=\"img-polaroid\" /></p>\n");
-                pw.println("<p>"+p.getCat_id()+"</p>");
-                pw.println("<p>"+p.getDescription()+"</p>");
-                pw.println("<p>"+p.getPrice()+"</p>");
-                pw.println("<p><a class=\"btn\" href=\"#\">View details &raquo;</a></p></div>");
-            }
 
-        %>--%>
+                    ArrayList<String> noMatches = cats;
+                    for (int i = 0; i < noMatches.size()-1 ; i++) {
+                        tmp = noMatches.get(i);
+                        if (tmp != null && tmp.equals(noMatches.get(i+1))){
+                            noMatches.remove(i+1);
+                        }
+                    }
+                    System.out.println(noMatches.size());
+                    request.setAttribute("cats", noMatches);
+
+                %>
+                <c:forEach items="${cats}" var="c">
+
+                    <li><a href="${c}">${c}</a></li>
+
+
+                </c:forEach>
+            </ul>
+        </li>
         <c:forEach items="${products}" var="p">
         <div class="span4">
             <h3>${p.name}</h3>
@@ -119,7 +141,7 @@
             <p>${p.cat_id}</p>
             <p>${p.description}</p>
             <p>${p.price} грн</p>
-            <p><a class="btn" href="./basket?id=${p.id}">В корзину &raquo;</a></p></div>
+            <p><a class="btn" href="./basket/${p.id}">В корзину &raquo;</a></p></div>
 
         </c:forEach>
 
@@ -127,9 +149,6 @@
 
     <hr>
 
-    <footer>
-        <p>&copy; Company 2013</p>
-    </footer>
 
 </div> <!-- /container -->
 

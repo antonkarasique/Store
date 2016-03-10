@@ -1,6 +1,3 @@
-<%@ page import="store.Product" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="store.Order" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -35,30 +32,19 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="brand" href="#">Project name</a>
+      <a class="brand" href="/">Мой магазин</a>
       <div class="nav-collapse collapse">
         <ul class="nav">
-          <li class="active"><a href="#">Home</a></li>
-          <li><a href="#about">About</a></li>
-          <li><a href="#contact">Contact</a></li>
-          <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
-            <ul class="dropdown-menu">
-              <li><a href="#">Action</a></li>
-              <li><a href="#">Another action</a></li>
-              <li><a href="#">Something else here</a></li>
-              <li class="divider"></li>
-              <li class="nav-header">Nav header</li>
-              <li><a href="#">Separated link</a></li>
-              <li><a href="#">One more separated link</a></li>
-            </ul>
-          </li>
+          <li class="active"><a href="/">Главная</a></li>
+          <li><a href="#about">Доставка</a></li>
+          <li><a href="#contact">Контакты</a></li>
         </ul>
+
         <sec:authorize access="isAnonymous()">
           <c:url value="/j_spring_security_check" var="loginUrl" />
           <form class="navbar-form pull-right" action="${loginUrl}" method="post">
-            <input class="span2" type="text" name="j_username" placeholder="Email">
-            <input class="span2" type="password" name="j_password" placeholder="Password">
+            <input class="span2" type="text" name="j_username" placeholder="Email or admin">
+            <input class="span2" type="password" name="j_password" placeholder="Password or 1234">
             <button type="submit" class="btn">Войти</button>
             <a href="/reg">Регистрация</a>
           </form>
@@ -66,40 +52,17 @@
         <sec:authorize access="isAuthenticated()">
           <form class="navbar-form pull-right">
           <p class="text-info">Ваш логин: <sec:authentication property="principal.username" />
-          <a class="btn btn-lg btn-danger" href="<c:url value="/logout" />" role="button">Выйти</a>
+          <a class="btn btn-small btn-primary" href="<c:url value="/basket" />" role="button">кабинет${inbasket}</a>
+          <a class="btn btn-mini btn-danger" href="<c:url value="/logout" />" role="button">Выйти</a>
           <sec:authorize access="hasRole('ADMIN')">
-            <a class="btn btn-inverse" href="<c:url value="/admin" />" role="button">Админка</a></form>
+            <a class="btn btn-inverse" href="<c:url value="/orders" />" role="button">Админка</a></form>
           </sec:authorize>
-          </p>
-          </form>
+
+
 
         </sec:authorize>
 
-        <h3>Список товаров</h3>
 
-        <table class="table table-striped">
-          <thead>
-          <tr>
-            <td><b>ID заказа</b></td>
-            <td><b>фото</b></td>
-            <td><b>Название</b></td>
-            <td><b>Цена</b></td>
-            <td><b>удалить</b></td>
-          </tr>
-          </thead>
-          <tr>
-
-          </tr>
-          <c:forEach items="${orders}" var="order">
-            <tr>
-              <td>${order.id}</td>
-              <td><img height="140" width="140" src="images/${order.Product_id}" /></td> >
-              <td>${order.name}</td> >
-              <td>${order.price}</td> >
-              <td><a href="/delete?id=${prods.id}">Delete</a></td>
-            </tr>
-          </c:forEach>
-        </table>
 
 
       </div><!--/.nav-collapse -->
@@ -108,10 +71,69 @@
 </div>
 
 <div class="container">
+  <div class="span6">
+  <h3>В корзине:</h3>
+  <table class="table table-bordered">
+    <thead>
 
-  <footer>
-    <p>&copy; Company 2013</p>
-  </footer>
+
+
+    <tr>
+      <td><b>ID</b></td>
+      <td><b>фото</b></td>
+      <td><b>Название</b></td>
+      <td><b>Цена</b></td>
+      <td><b>удалить</b></td>
+    </tr>
+
+    </thead>
+    <tr>
+
+    </tr>
+    <c:forEach items="${products}" var="product">
+      <tr>
+        <td>${product.id}</td>
+        <td><img height="140" width="140" src="images/${product.id}" /></td>
+        <td>${product.name}</td>
+        <td>${product.price}</td>
+        <td><a href="/basket/delete/p/${product.id}">Delete</a></td>
+      </tr>
+    </c:forEach>
+
+    <tr>
+      <td>.</td>
+      <td>.</td>
+<c:choose>
+  <c:when test="${orders.id ne null}">
+      <td><a href="/basket/delete/${orders.id}">Delete</a></td>
+      <td><b>${orders.price}</b></td>
+      <td><a class="btn" href="./basket/confirm/">Подтвердить</a></td>
+</c:when>
+  </c:choose>
+    </tr>
+    </table>
+
+    </div>
+
+    <div class="span4">
+      <h2>История заказов</h2>
+      <table class="table table-bordered">
+      <tr>
+        <td><b>ID</b></td>
+        <td><b>Заказ</b></td>
+        <td><b>Цена</b></td>
+      </tr>
+      <c:forEach items="${history}" var="order">
+        <tr>
+          <td>${order.id}</td>
+          <td>${order.name}</td>
+          <td>${order.price}</td>
+        </tr>
+      </c:forEach>
+
+  </table>
+    </div>
+
 
 </div> <!-- /container -->
 

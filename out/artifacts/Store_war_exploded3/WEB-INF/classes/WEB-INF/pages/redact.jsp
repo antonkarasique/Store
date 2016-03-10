@@ -1,4 +1,4 @@
-<%@ page import="store.Product" %>
+<%@ page import="store.db.Product" %>
 <%--
   Created by IntelliJ IDEA.
   User: Anton

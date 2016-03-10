@@ -1,7 +1,5 @@
-<%@ page import="store.Product" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.Arrays" %>
+<%@ page import="store.db.Product" %>
+<%@ page import="java.util.*" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -29,8 +27,26 @@
 <body>
 <sec:authorize access="hasRole('ADMIN')">
 <div class="container">
-  <h3>Добавить товар</h3>
-  <div class="container">
+
+
+  <table class="table table-striped">
+    <thead>
+    <tr>
+      <td><b><a href="/">На главную </a></b></td>
+      <td><b><a href="/orders">Заказы  (${users.size()})</a></b></td>
+      <td><b><a href="/product">Товары</a></b></td>
+      <td><b><a href="/users">Пользователи</a></b></td>
+      <td><b>Цена</b></td>
+      <td><b>удалить</b></td>
+    </tr>
+    </thead>
+    </table>
+
+
+
+
+  <div class="span4">
+    <h3>Добавить товар</h3>
 
 
     <form role="form" enctype="multipart/form-data" class="form-horizontal" action="/addProduct" method="post">
@@ -38,54 +54,60 @@
       <div class="form-group"><input type="text" class="input-block-level" name="name" placeholder="Название"></div>
       <div class="form-group"><input type="text" class="input-block-level" name="category" placeholder="Категория"></div>
       <div class="form-group"><input type="text" class="input-block-level" name="price" placeholder="Цена"></div>
-      <div class="form-group"><input type="text" class="input-block-level" name="desc" placeholder="описание"></div>
+      <div class="form-group"><input type="text" class="input-block-level" name="desc" rows="3" placeholder="описание"></div>
       <div class="form-group">Photo: <input type="file" name="photo"></div>
 
       <div class="form-group"><input type="submit" class="btn btn-large btn-primary" value="add"></div>
     </form>
-
-    <div class="row-fluid">
-      <div class="span4"><a href="/"><h5>На главную </h5></a></div>
-      <div class="span4">
-        <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><h5>Категории</h5> <b class="caret"></b></a>
-        <ul class="dropdown-menu">
-          <li><a href="./admin">Все</a></li>
-          <% ArrayList<Product> products = (ArrayList<Product>)request.getAttribute("product");
-            String[] cats = new String[products.size()];
-            int count = 0;
-            for (Product p : products){
-              cats[count] = p.getDescription();
-              count+=1;
-            }
-            count = 0;
-            Arrays.sort(cats);
-            ArrayList<String> noMatches = new ArrayList<String>(Arrays.asList(cats));
-            for (int i = 0; i < noMatches.size()-1 ; i++) {
-              String tmp = noMatches.get(i);
-              if (tmp.equals(noMatches.get(i+1))){
-                noMatches.remove(i+1);
-              }
-            }
-            request.setAttribute("cats", noMatches);
-
-          %>
-          <c:forEach items="${cats}" var="c">
-
-            <li><a href="admin?sort=${c}">${c}</a></li>
+  </div>
 
 
-          </c:forEach>
-        </ul>
-      </li></div>
-    </div>
-
-
+  </div>
 
 
 
   </div>
-  <h3>Список товаров</h3>
+  <li class="dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><h2>категории</h2><b class="caret"></b></a>
+    <ul class="dropdown-menu">
+      <li><a href="/admin">Все</a></li>
+      <% ArrayList<Product> products = (ArrayList<Product>)request.getAttribute("product");
+        ArrayList<String> cats = new ArrayList<>();
+        for (Product p : products) {
+          cats.add(p.getCat_id());
+        }
+        String tmp = " hop hey lalaey! ";
+        try {
+          Collections.sort(cats);
+        } catch (NullPointerException e){
+          e.printStackTrace();
+          System.out.println("null photo uploaded");
+        }
+        for(Iterator<String> cat = cats.iterator(); cat.hasNext();){
+          String currentString = cat.next();
+          if (tmp != null && tmp.equals(currentString)) {
+            cat.remove();
+          } else {
+            tmp = currentString;
+          }
+        }
+        for (int i = 0; i < cats.size()-1 ; i++) {
+          tmp = cats.get(i);
+          if (tmp != null && tmp.equals(cats.get(i+1))){
+            cats.remove(i+1);
+          }
+        }
+        request.setAttribute("cats", cats);
+
+      %>
+      <c:forEach items="${cats}" var="c">
+
+        <li><a href="./${c}">${c}</a></li>
+
+
+      </c:forEach>
+    </ul>
+  </li>
 
   <table class="table table-striped">
     <thead>
@@ -105,7 +127,7 @@
     <c:forEach items="${product}" var="prods">
       <tr>
         <td>${prods.id}</td>
-        <td><img height="140" width="140" src="images/${prods.id}" /></td> >
+        <td><img height="140" width="140" src="./images/${prods.id}" /></td> >
         <td>${prods.name}</td> >
         <td>${prods.cat_id}</td> >
         <td>${prods.description}</td>
